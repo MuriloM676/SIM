@@ -1,0 +1,318 @@
+CHECKLIST TÉCNICO – SISTEMA SIM-LIKE
+🔐 1. AUTENTICAÇÃO & AUTORIZAÇÃO
+
+ Login com usuário e senha
+
+ Tokens de acesso (JWT / Sanctum)
+
+ Expiração e renovação de sessão
+
+ Logout com invalidação de token
+
+ Bloqueio/desativação de usuários
+
+ Controle de acesso por PERFIL (RBAC)
+
+ Controle de acesso por MUNICÍPIO
+
+ Middleware de autorização
+
+ Policies por entidade
+
+ Log de login e logout
+
+🏙️ 2. MULTI-TENANCY (MUNICÍPIOS)
+
+ Cadastro de municípios
+
+ Isolamento lógico por municipio_id
+
+ Admin global com acesso total
+
+ Configurações específicas por município
+
+ Validação automática do município logado
+
+ Bloqueio de acesso cruzado entre municípios
+
+👥 3. USUÁRIOS, PERFIS E PERMISSÕES
+
+ Cadastro de usuários
+
+ Associação usuário ↔ município
+
+ Perfis:
+
+ Administrador
+
+ Gestor
+
+ Operador
+
+ Auditor
+
+ Permissões granulares por ação
+
+ Histórico de alterações de usuário
+
+🚓 4. CADASTROS BASE
+
+ Cadastro de agentes de trânsito
+
+ Cadastro de veículos
+
+ Cadastro de infrações (CTB)
+
+ Infrações como dados de referência (somente leitura)
+
+ Validação de dados obrigatórios
+
+ Importação em lote (opcional)
+
+📝 5. REGISTRO DE INFRAÇÃO / MULTA
+
+ Criação de multa
+
+ Geração de número único (Auto de Infração)
+
+ Validação de campos obrigatórios
+
+ Associação:
+
+ Veículo
+
+ Agente
+
+ Infração
+
+ Município
+
+ Upload de evidências
+
+ Multa NÃO pode ser deletada
+
+ Cancelamento apenas com justificativa
+
+ Registro automático em auditoria
+
+🔄 6. WORKFLOW DA MULTA (CRÍTICO)
+
+ Estados definidos:
+
+ Rascunho
+
+ Registrada
+
+ Enviada ao órgão externo
+
+ Notificada
+
+ Em recurso
+
+ Deferida
+
+ Indeferida
+
+ Encerrada
+
+ Transições permitidas controladas
+
+ Bloqueio de transições inválidas
+
+ Histórico imutável de status
+
+ Justificativa obrigatória para cancelamento
+
+ Testes de regras de negócio
+
+⚖️ 7. RECURSOS ADMINISTRATIVOS
+
+ Defesa prévia
+
+ Recurso JARI
+
+ Recurso CETRAN
+
+ Upload de documentos
+
+ Parecer do julgador
+
+ Controle de prazos legais
+
+ Histórico completo do recurso
+
+ Auditoria automática
+
+🔌 8. INTEGRAÇÕES EXTERNAS
+
+ Integração com Detran (simulada)
+
+ Consulta RENAVAM
+
+ Envio assíncrono de dados
+
+ Jobs em fila
+
+ Retry automático
+
+ Backoff exponencial
+
+ Log de request/response
+
+ Reprocessamento manual
+
+ Tratamento de falhas
+
+🔍 9. AUDITORIA (IMUTÁVEL)
+
+ Auditoria de criação
+
+ Auditoria de alteração
+
+ Auditoria de cancelamento
+
+ Auditoria de login/logout
+
+ Auditoria de visualização de dados pessoais
+
+ Registro:
+
+ Usuário
+
+ Ação
+
+ Entidade
+
+ Antes / Depois
+
+ IP
+
+ User-Agent
+
+ Data/Hora
+
+ Tabela sem UPDATE / DELETE
+
+ Filtros de auditoria
+
+ Exportação para fiscalização
+
+🔒 10. SEGURANÇA & LGPD
+
+ Criptografia de dados sensíveis
+
+ Proteção contra SQL Injection
+
+ Proteção contra XSS
+
+ Rate limiting
+
+ Sanitização de entradas
+
+ Logs de acesso a dados pessoais
+
+ Finalidade e base legal LGPD
+
+ Exportação de dados do cidadão
+
+ Anonimização de dados antigos
+
+ Retenção configurável
+
+📊 11. DASHBOARDS E RELATÓRIOS
+
+ Dashboard geral
+
+ Multas por status
+
+ Multas por período
+
+ Arrecadação
+
+ Recursos pendentes
+
+ Relatórios em PDF
+
+ Exportação CSV/XLS
+
+ Filtros avançados
+
+📁 12. GESTÃO DE EVIDÊNCIAS
+
+ Upload seguro
+
+ Tipos permitidos
+
+ Limite de tamanho
+
+ Hash de integridade
+
+ Controle de acesso
+
+ Versionamento
+
+ Log de download
+
+🧪 13. TESTES
+
+ Testes unitários
+
+ Testes de integração
+
+ Testes de workflow
+
+ Testes de autorização
+
+ Testes de auditoria
+
+ Testes de integração externa
+
+ Cobertura mínima definida
+
+🚀 14. PERFORMANCE & ESCALABILIDADE
+
+ Paginação obrigatória
+
+ Índices no banco
+
+ Cache Redis
+
+ Filas para tarefas pesadas
+
+ Monitoramento de filas
+
+ Logs estruturados
+
+ Alertas de falha
+
+📦 15. DEVOPS & OPERAÇÃO
+
+ Docker
+
+ Variáveis de ambiente
+
+ CI/CD
+
+ Backup automático
+
+ Restore testado
+
+ Versionamento de banco
+
+ Ambiente de homologação
+
+🧠 CHECKLIST DE MATURIDADE (ENTREVISTA)
+
+ Sistema multi-município
+
+ Auditoria imutável
+
+ Workflow jurídico
+
+ Integração assíncrona
+
+ LGPD real (não só discurso)
+
+ Testes de negócio
+
+ Escalabilidade planejada

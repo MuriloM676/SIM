@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sim-backend
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./storage:/var/www/storage
+    networks:
+      - sim-network
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: sim-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sim_database
+      POSTGRES_USER: sim_user
+      POSTGRES_PASSWORD: sim_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - sim-network
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: sim-redis
+    restart: unless-stopped
+    networks:
+      - sim-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sim-queue-worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - ./:/var/www
+    networks:
+      - sim-network
+    depends_on:
+      - postgres
+      - redis
+
+networks:
+  sim-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
