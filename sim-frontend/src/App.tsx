@@ -9,6 +9,11 @@ import MultasList from './pages/multas/MultasList'
 import MultaForm from './pages/multas/MultaForm'
 import MultaDetails from './pages/multas/MultaDetails'
 import Auditoria from './pages/Auditoria'
+import Veiculos from './pages/Veiculos'
+import Agentes from './pages/Agentes'
+import Recursos from './pages/Recursos'
+import Usuarios from './pages/Usuarios'
+import Infracoes from './pages/Infracoes'
 
 // Layout
 import Layout from './components/Layout'
@@ -26,6 +31,11 @@ function App() {
           <Route path="/multas/nova" element={<MultaForm />} />
           <Route path="/multas/:id" element={<MultaDetails />} />
           <Route path="/multas/:id/editar" element={<MultaForm />} />
+          <Route path="/veiculos" element={<Veiculos />} />
+          <Route path="/agentes" element={<Agentes />} />
+          <Route path="/recursos" element={<Recursos />} />
+          <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/infracoes" element={<Infracoes />} />
           <Route path="/auditoria" element={<Auditoria />} />
         </Route>
       </Routes>

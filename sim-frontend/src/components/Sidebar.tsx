@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, FileText, Shield, Users, Settings } from 'lucide-react'
+import { Home, FileText, Shield, Users, Car, UserCheck, Scale, FileWarning } from 'lucide-react'
 
 export default function Sidebar() {
   const location = useLocation()
@@ -7,6 +7,11 @@ export default function Sidebar() {
   const menuItems = [
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/multas', label: 'Multas', icon: FileText },
+    { path: '/recursos', label: 'Recursos', icon: Scale },
+    { path: '/veiculos', label: 'Veículos', icon: Car },
+    { path: '/agentes', label: 'Agentes', icon: UserCheck },
+    { path: '/infracoes', label: 'Infrações CTB', icon: FileWarning },
+    { path: '/usuarios', label: 'Usuários', icon: Users },
     { path: '/auditoria', label: 'Auditoria', icon: Shield },
   ]
 
