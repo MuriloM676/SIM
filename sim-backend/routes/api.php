@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\MunicipioController;
 use App\Http\Controllers\Api\RecursoController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\VeiculoController;
+use App\Http\Controllers\EvidenciaController;
+use App\Http\Controllers\RelatorioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,7 +31,14 @@ Route::middleware(['auth.api'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard-cached', [RelatorioController::class, 'dashboardCache'])->name('dashboard.cached');
     Route::get('/relatorio', [DashboardController::class, 'relatorio'])->name('relatorio');
+
+    // Relatórios PDF
+    Route::prefix('relatorios')->name('relatorios.')->group(function () {
+        Route::get('/multa/{id}/pdf', [RelatorioController::class, 'multaPdf'])->name('multa.pdf');
+        Route::get('/estatisticas/pdf', [RelatorioController::class, 'estatisticasPdf'])->name('estatisticas.pdf');
+    });
 
     // Multas
     Route::prefix('multas')->name('multas.')->group(function () {
@@ -41,6 +50,11 @@ Route::middleware(['auth.api'])->group(function () {
         Route::patch('/{id}/status', [MultaController::class, 'updateStatus'])->name('update-status');
         Route::post('/{id}/cancel', [MultaController::class, 'cancel'])->name('cancel');
         Route::post('/{id}/send-detran', [MultaController::class, 'sendToDetran'])->name('send-detran');
+        
+        // Evidências
+        Route::get('/{multaId}/evidencias', [EvidenciaController::class, 'index'])->name('evidencias.index');
+        Route::post('/{multaId}/evidencias', [EvidenciaController::class, 'store'])->name('evidencias.store');
+        Route::delete('/{multaId}/evidencias/{id}', [EvidenciaController::class, 'destroy'])->name('evidencias.destroy');
     });
 
     // Recursos
@@ -48,6 +62,9 @@ Route::middleware(['auth.api'])->group(function () {
         Route::get('/', [RecursoController::class, 'index'])->name('index');
         Route::post('/', [RecursoController::class, 'store'])->name('store');
         Route::get('/{id}', [RecursoController::class, 'show'])->name('show');
+        Route::post('/{id}/analisar', [RecursoController::class, 'analisar'])
+            ->middleware('role:administrador,gestor')
+            ->name('analisar');
         Route::post('/{id}/julgar', [RecursoController::class, 'julgar'])
             ->middleware('role:administrador,gestor')
             ->name('julgar');

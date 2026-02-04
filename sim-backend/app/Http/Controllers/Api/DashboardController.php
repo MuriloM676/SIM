@@ -12,6 +12,18 @@ class DashboardController extends Controller
     {
         $municipioId = $request->user_perfil === 'administrador' ? null : $request->user_municipio_id;
         $mesAtual = date('Y-m');
+        
+        // Tentar obter do cache
+        $cacheKey = 'dashboard_' . ($municipioId ?? 'all');
+        $cached = cache()->get($cacheKey);
+        
+        if ($cached) {
+            return response()->json([
+                'success' => true,
+                'data' => $cached,
+                'cached' => true
+            ]);
+        }
 
         // Query base
         $queryBase = DB::table('multas');
@@ -89,20 +101,26 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
+        $data = [
+            'totais' => [
+                'total_multas' => $totalMultas,
+                'multas_mes' => $multasMes,
+                'arrecadacao_estimada' => number_format($arrecadacaoEstimada, 2, '.', ''),
+                'recursos_pendentes' => $recursosPendentes,
+            ],
+            'multas_por_status' => $multasPorStatus,
+            'evolucao_mensal' => $evolucaoMensal,
+            'top_infracoes' => $topInfracoes,
+            'atividades_recentes' => $atividadesRecentes,
+        ];
+
+        // Cachear por 5 minutos
+        cache()->put($cacheKey, $data, 300);
+
         return response()->json([
             'success' => true,
-            'data' => [
-                'totais' => [
-                    'total_multas' => $totalMultas,
-                    'multas_mes' => $multasMes,
-                    'arrecadacao_estimada' => number_format($arrecadacaoEstimada, 2, '.', ''),
-                    'recursos_pendentes' => $recursosPendentes,
-                ],
-                'multas_por_status' => $multasPorStatus,
-                'evolucao_mensal' => $evolucaoMensal,
-                'top_infracoes' => $topInfracoes,
-                'atividades_recentes' => $atividadesRecentes,
-            ],
+            'data' => $data,
+            'cached' => false
         ]);
     }
 
