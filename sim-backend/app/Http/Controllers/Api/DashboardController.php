@@ -10,54 +10,50 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $municipioId = $request->user_municipio_id ?? 1;
+        $municipioId = $request->user_perfil === 'administrador' ? null : $request->user_municipio_id;
         $mesAtual = date('Y-m');
-        $anoAtual = date('Y');
+
+        // Query base
+        $queryBase = DB::table('multas');
+        if ($municipioId) {
+            $queryBase->where('municipio_id', $municipioId);
+        }
 
         // Total de multas
-        $totalMultas = DB::table('multas')
-            ->where('municipio_id', $municipioId)
-            ->whereNull('deleted_at')
-            ->count();
+        $totalMultas = (clone $queryBase)->count();
 
         // Multas por status
-        $multasPorStatus = DB::table('multas')
+        $multasPorStatus = (clone $queryBase)
             ->select('status', DB::raw('count(*) as total'))
-            ->where('municipio_id', $municipioId)
-            ->whereNull('deleted_at')
             ->groupBy('status')
             ->get()
             ->keyBy('status');
 
         // Multas do mês
-        $multasMes = DB::table('multas')
-            ->where('municipio_id', $municipioId)
-            ->whereNull('deleted_at')
+        $multasMes = (clone $queryBase)
             ->whereRaw("TO_CHAR(created_at, 'YYYY-MM') = ?", [$mesAtual])
             ->count();
 
         // Arrecadação estimada
-        $arrecadacaoEstimada = DB::table('multas')
-            ->where('municipio_id', $municipioId)
+        $arrecadacaoEstimada = (clone $queryBase)
             ->whereIn('status', ['notificada', 'encerrada'])
-            ->whereNull('deleted_at')
-            ->sum('valor_multa');
+            ->sum('valor_multa') ?? 0;
 
         // Recursos pendentes
         $recursosPendentes = DB::table('recursos')
             ->join('multas', 'recursos.multa_id', '=', 'multas.id')
-            ->where('multas.municipio_id', $municipioId)
             ->where('recursos.status', 'em_analise')
+            ->when($municipioId, function($q) use ($municipioId) {
+                $q->where('multas.municipio_id', $municipioId);
+            })
             ->count();
 
         // Evolução mensal (últimos 6 meses)
-        $evolucaoMensal = DB::table('multas')
+        $evolucaoMensal = (clone $queryBase)
             ->select(
                 DB::raw("TO_CHAR(created_at, 'YYYY-MM') as mes"),
                 DB::raw('count(*) as total')
             )
-            ->where('municipio_id', $municipioId)
-            ->whereNull('deleted_at')
             ->whereRaw("created_at >= NOW() - INTERVAL '6 months'")
             ->groupBy(DB::raw("TO_CHAR(created_at, 'YYYY-MM')"))
             ->orderBy('mes')
@@ -71,8 +67,9 @@ class DashboardController extends Controller
                 'infracoes.descricao',
                 DB::raw('count(*) as total')
             )
-            ->where('multas.municipio_id', $municipioId)
-            ->whereNull('multas.deleted_at')
+            ->when($municipioId, function($q) use ($municipioId) {
+                $q->where('multas.municipio_id', $municipioId);
+            })
             ->groupBy('infracoes.id', 'infracoes.codigo_ctb', 'infracoes.descricao')
             ->orderBy('total', 'desc')
             ->limit(5)
@@ -85,7 +82,9 @@ class DashboardController extends Controller
                 'auditorias.*',
                 'usuarios.nome as usuario_nome'
             )
-            ->where('auditorias.municipio_id', $municipioId)
+            ->when($municipioId, function($q) use ($municipioId) {
+                $q->where('auditorias.municipio_id', $municipioId);
+            })
             ->orderBy('auditorias.created_at', 'desc')
             ->limit(10)
             ->get();
@@ -96,7 +95,7 @@ class DashboardController extends Controller
                 'totais' => [
                     'total_multas' => $totalMultas,
                     'multas_mes' => $multasMes,
-                    'arrecadacao_estimada' => $arrecadacaoEstimada,
+                    'arrecadacao_estimada' => number_format($arrecadacaoEstimada, 2, '.', ''),
                     'recursos_pendentes' => $recursosPendentes,
                 ],
                 'multas_por_status' => $multasPorStatus,
