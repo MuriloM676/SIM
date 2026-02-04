@@ -112,7 +112,7 @@ export default function Infracoes() {
                       </span>
                     </td>
                     <td className="py-3 text-center">{infracao.pontos}</td>
-                    <td className="py-3 font-mono">R$ {infracao.valor.toFixed(2)}</td>
+                    <td className="py-3 font-mono">R$ {Number(infracao.valor).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>

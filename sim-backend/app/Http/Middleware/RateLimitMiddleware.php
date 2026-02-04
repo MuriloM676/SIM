@@ -10,8 +10,11 @@ class RateLimitMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
+        // Rate limit desabilitado para desenvolvimento
+        // Habilite em produção ajustando os valores abaixo
+        
         $key = 'rate_limit:' . $request->ip();
-        $maxAttempts = 60; // 60 requisições
+        $maxAttempts = 1000; // 1000 requisições (aumentado para dev)
         $decayMinutes = 1; // por minuto
 
         $attempts = Cache::get($key, 0);

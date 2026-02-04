@@ -189,11 +189,11 @@ export default function MultaDetails() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Valor</p>
-                <p className="font-bold text-xl text-green-600">R$ {multa.valor_multa.toFixed(2)}</p>
+                <p className="font-bold text-xl text-green-600">R$ {Number(multa.valor_multa || 0).toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Pontos CNH</p>
-                <p className="font-bold text-xl text-red-600">{multa.pontos_cnh}</p>
+                <p className="font-bold text-xl text-red-600">{multa.pontos_cnh || 0}</p>
               </div>
             </CardContent>
           </Card>

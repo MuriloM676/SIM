@@ -211,7 +211,7 @@ export default function MultasList() {
                         <td className="py-3">{new Date(multa.data_infracao).toLocaleDateString()}</td>
                         <td className="py-3 text-sm">{multa.agente_nome}</td>
                         <td className="py-3 font-semibold text-green-600">
-                          R$ {multa.valor_multa.toFixed(2)}
+                          R$ {Number(multa.valor_multa || 0).toFixed(2)}
                         </td>
                         <td className="py-3">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[multa.status]}`}>

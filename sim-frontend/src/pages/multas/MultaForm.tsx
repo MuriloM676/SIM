@@ -38,6 +38,7 @@ export default function MultaForm() {
   const { id } = useParams();
   const { token } = useAuthStore();
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [infracoes, setInfracoes] = useState<Infracao[]>([]);
@@ -58,12 +59,25 @@ export default function MultaForm() {
   });
 
   useEffect(() => {
-    fetchVeiculos();
-    fetchAgentes();
-    fetchInfracoes();
-    if (id) {
-      fetchMulta();
-    }
+    const loadData = async () => {
+      setInitialLoading(true);
+      try {
+        await Promise.all([
+          fetchVeiculos(),
+          fetchAgentes(),
+          fetchInfracoes(),
+        ]);
+        if (id) {
+          await fetchMulta();
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        toast.error('Erro ao carregar dados do formulário');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    loadData();
   }, [id]);
 
   const fetchVeiculos = async () => {
@@ -71,9 +85,10 @@ export default function MultaForm() {
       const response = await axios.get(`${API_URL}/veiculos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setVeiculos(response.data.data);
+      setVeiculos(response.data.data || []);
     } catch (error) {
       console.error('Erro ao carregar veículos:', error);
+      toast.error('Erro ao carregar veículos');
     }
   };
 
@@ -82,9 +97,10 @@ export default function MultaForm() {
       const response = await axios.get(`${API_URL}/agentes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAgentes(response.data.data);
+      setAgentes(response.data.data || []);
     } catch (error) {
       console.error('Erro ao carregar agentes:', error);
+      toast.error('Erro ao carregar agentes');
     }
   };
 
@@ -93,9 +109,10 @@ export default function MultaForm() {
       const response = await axios.get(`${API_URL}/infracoes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setInfracoes(response.data.data);
+      setInfracoes(response.data.data || []);
     } catch (error) {
       console.error('Erro ao carregar infrações:', error);
+      toast.error('Erro ao carregar infrações');
     }
   };
 
@@ -168,7 +185,16 @@ export default function MultaForm() {
         <h1 className="text-3xl font-bold">{id ? 'Editar Multa' : 'Nova Multa'}</h1>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      {initialLoading ? (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <p className="text-gray-600">Carregando dados do formulário...</p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <form onSubmit={handleSubmit}>
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Dados da Infração</CardTitle>
@@ -231,7 +257,7 @@ export default function MultaForm() {
                 <option value="">Selecione uma infração</option>
                 {infracoes.map((i) => (
                   <option key={i.id} value={i.id}>
-                    {i.codigo_ctb} - {i.descricao} (R$ {i.valor.toFixed(2)} - {i.pontos} pts)
+                    {i.codigo_ctb} - {i.descricao} (R$ {Number(i.valor).toFixed(2)} - {i.pontos} pts)
                   </option>
                 ))}
               </Select>
@@ -331,6 +357,7 @@ export default function MultaForm() {
           </Button>
         </div>
       </form>
+      )}
     </div>
   );
 }
